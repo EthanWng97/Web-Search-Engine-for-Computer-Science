@@ -7,9 +7,9 @@ class Simhash:
         tokens: tokenized string
         hashbits: digits of hash value
     """
-    def __init__(self, tokens='', hashbits=128):
+    def __init__(self, hashbits=128):
         self.hashbits = hashbits
-        self.hash = self.simhash(tokens)
+        self.hash = None
 
     """ Generate simhash value given tokens
     Args:
@@ -17,7 +17,7 @@ class Simhash:
     Returns:
         fingerprint: simhash value
     """
-    def simhash(self, tokens):
+    def cal_simhash(self, tokens):
         v = [0] * self.hashbits
         for t in [self._string_hash(x) for x in tokens]:  # t为token的普通hash值
             for i in range(self.hashbits):
@@ -30,6 +30,7 @@ class Simhash:
         for i in range(self.hashbits):
             if v[i] >= 0:
                 fingerprint += 1 << i
+        self.hash = fingerprint
         return fingerprint  # 整个文档的fingerprint为最终各个位>=0的和
     
     """ Calculate hamming distance
@@ -59,6 +60,21 @@ class Simhash:
             return b / a
         else:
             return a / b
+        
+    """ Calculate similarity given two simhash values
+    Args:
+        a: simhash value
+        b: simhash value
+    Returns:
+        b / a: similarity
+    """
+    def similarity_value(self, a, b):
+        a = float(a)
+        b = float(b)
+        if a > b:
+            return b / a
+        else:
+            return a / b
 
     """ Convert each word(token) into hash value
     Args:
@@ -82,14 +98,17 @@ class Simhash:
 
 
 if __name__ == '__main__':
+    simhash = Simhash()
     s = 'This is a test string for testing'
-    hash1 = Simhash(s.split())
+    hash1 = simhash.cal_simhash(s.split())
 
     s = 'This is a test string for testing also'
-    hash2 = Simhash(s.split())
+    hash2 = simhash.cal_simhash(s.split())
 
     s = 'lunch'
-    hash3 = Simhash(s.split())
+    hash3 = simhash.cal_simhash(s.split())
 
-    print(hash1.hamming_distance(hash2), "   ", hash1.similarity(hash2))
-    print(hash1.hamming_distance(hash3), "   ", hash1.similarity(hash3))
+    # print(hash1.hamming_distance(hash2), "   ", hash1.similarity(hash2))
+    # print(hash1.hamming_distance(hash3), "   ", hash1.similarity(hash3))
+    print(simhash.similarity_value(hash1, hash2))
+    print(simhash.similarity_value(hash2, hash3))
