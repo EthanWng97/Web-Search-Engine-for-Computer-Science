@@ -14,10 +14,9 @@ class Webpage:
 class Crawl:
     """ class crawl is a class dealing with crawling data from Website
         Args:
-        in_dir: working directory
         url: root url for crawling
     """
-    def __init__(self, in_dir, url):
+    def __init__(self, url):
         self.frontier = [url]
         self.hash = set()
         self.fetchedurls = []
@@ -25,17 +24,15 @@ class Crawl:
 
     """ Description
     Args:
-        arg: 
-    Returns:
-        return:
+        in_dir: working directory
     """
-    def crawl(self, num=10):
+    def crawl(self, in_dir, num=10):
         # url: string
         # title: string
         # content: string
         # outlinks: list
         i = 0
-        while(len(self.fetchedurls)<=num):
+        while(len(self.fetchedurls)<num):
             # init new Webpage class
             webpage = Webpage()
 
@@ -80,23 +77,16 @@ class Crawl:
             webpage.outlinks = tmp_outlinks
 
             # write to file
-            fopen = open(str(i)+".txt", "wb")
-            pickle.dump(webpage.url, fopen)
-            pickle.dump(webpage.title, fopen)
-            pickle.dump(webpage.content, fopen)
-            pickle.dump(webpage.outlinks, fopen)
+            with open(in_dir +'/'+ str(i), 'wb') as fwrite:
+                pickle.dump(webpage, fwrite)
 
-            # fopen.write(webpage.url)
-            # fopen.write(webpage.title)
-            # fopen.write(webpage.content)
-            # fopen.write(" ".join(webpage.outlinks))
             i += 1
-        fopen = open("fetchedurls.txt","wb")
+        fopen = open("fetchedurls","wb")
         pickle.dump(self.fetchedurls, fopen)
 
 
 if __name__ == '__main__':
     url = "https://en.wikipedia.org/wiki/Computer_science"
-    crawl = Crawl('./webpage', url)
-    crawl.crawl()
+    crawl = Crawl( url)
+    crawl.crawl('./webpage')
     print(crawl.fetchedurls)
