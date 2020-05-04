@@ -11,12 +11,12 @@ class PageRank:
         self.fetchedurls = fetchedurls
         n = len(fetchedurls)
         self.A_matrix = np.zeros(shape=(n, n), dtype=np.float)
+        self.a = np.full([1, n], 1/n)
 
-    """ Description
+    """ build A matrix for multiple outlinks
     Args:
-        arg: 
-    Returns:
-        return:
+        doc_id: which doc to be processed for A matrix
+        outlinks: all outlink this doc contains
     """
     def build_A_matrix(self, doc_id, outlinks):
         for j in range(len(outlinks)):
@@ -27,13 +27,9 @@ class PageRank:
             else:
                 self.A_matrix[doc_id][num] = 1
 
-    """ Description
-    Args:
-        arg: 
-    Returns:
-        return:
+    """ refine the A matrix by using probability and teleport
     """
-    def refine_A_matrix(self, doc_id, outlinks):
+    def refine_A_matrix(self):
         num = self.A_matrix.shape[0]
         for i in range(self.A_matrix.shape[0]):
 
@@ -48,6 +44,18 @@ class PageRank:
             for j in range(self.A_matrix.shape[1]):
                 self.A_matrix[i][j] = 0.1 * \
                     (1/num) + 0.9*self.A_matrix[i][j]
+
+    def run(self, precision):
+        # num = self.A_matrix.shape[0]
+        # x = np.full([1, num],1/num)
+        a_new = np.dot(self.a, self.A_matrix)
+        print(a_new)
+        error_sum = ((self.a - a_new)**2).sum()
+        if (error_sum <= precision):
+            return
+        else:
+            self.a = a_new
+            self.run(precision)
 
 if __name__ == '__main__':
 

@@ -66,34 +66,18 @@ class Indexer:
                     #     print(len(webpage.outlinks))
                     # contrust A table
                     pagerank.build_A_matrix(doc_id, webpage.outlinks)
-                    # for j in range(len(webpage.outlinks)):
-                    #     try:
-                    #         num = fetchedurls.index(webpage.outlinks[j])
-                    #     except ValueError:
-                    #         continue
-                    #     else:
-                    #         # print(fetchedurls[num])
-                    #         A_table[doc_id][num] = 1
 
-        print(pagerank.A_matrix)
+        # print(pagerank.A_matrix)
         # refine A Table
-        pagerank.refine_A_matrix(doc_id, webpage.outlinks)
-        # num = pagerank.A_matrix.shape[0]
-        # for i in range(pagerank.A_matrix.shape[0]):
-            
-        #     # Markov chains
-        #     if(np.sum(pagerank.A_matrix[i])):
-        #         pagerank.A_matrix[i] /= np.sum(pagerank.A_matrix[i])
-        #     else:
-        #         pagerank.A_matrix[i] = 1/num
-        #         continue
+        pagerank.refine_A_matrix()
+        # print(pagerank.x)
 
-        #     # Teleport
-        #     for j in range(pagerank.A_matrix.shape[1]):
-        #         pagerank.A_matrix[i][j] = 0.1 * \
-        #             (1/num) + 0.9*pagerank.A_matrix[i][j]
+        # print(pagerank.A_matrix)
+
+        # run pagerank algorithm
+        pagerank.run(precision=0.001)
             
-        print(pagerank.A_matrix)
+        # print(pagerank.A_matrix)
 
 
 if __name__ == '__main__':
