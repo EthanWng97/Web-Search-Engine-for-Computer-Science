@@ -105,5 +105,5 @@ class Crawl:
 if __name__ == '__main__':
     url = "https://en.wikipedia.org/wiki/Computer_science"
     crawl = Crawl( url)
-    crawl.crawl('./webpage', num=50)
+    crawl.crawl('./webpage', num=10)
     print(crawl.fetchedurls)

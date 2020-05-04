@@ -9,6 +9,7 @@ from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 from collections import OrderedDict
 from crawling import Webpage
+from pagerank import PageRank
 
 class Indexer:
     """ class Indexer is a class dealing with building index, saving it to file and loading it
@@ -42,9 +43,11 @@ class Indexer:
         fopen = open(
             "/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/fetchedurls", "rb")
         fetchedurls = pickle.load(fopen)
-        n = len(fetchedurls)
-        print(fetchedurls)
-        A_table = np.zeros(shape=(n,n),dtype=np.float)
+        # init PageRank class
+        pagerank = PageRank(fetchedurls)
+        # n = len(fetchedurls)
+        # print(fetchedurls)
+        # A_table = np.zeros(shape=(n,n),dtype=np.float)
         for i, file in enumerate(files):
             if not os.path.isdir(file):
                 if (file == ".DS_Store"):
@@ -62,32 +65,35 @@ class Indexer:
                     #     print(webpage.outlinks)
                     #     print(len(webpage.outlinks))
                     # contrust A table
-                    for j in range(len(webpage.outlinks)):
-                        try:
-                            num = fetchedurls.index(webpage.outlinks[j])
-                        except ValueError:
-                            continue
-                        else:
-                            # print(fetchedurls[num])
-                            A_table[doc_id][num] = 1
+                    pagerank.build_A_matrix(doc_id, webpage.outlinks)
+                    # for j in range(len(webpage.outlinks)):
+                    #     try:
+                    #         num = fetchedurls.index(webpage.outlinks[j])
+                    #     except ValueError:
+                    #         continue
+                    #     else:
+                    #         # print(fetchedurls[num])
+                    #         A_table[doc_id][num] = 1
 
-        print(A_table)
+        print(pagerank.A_matrix)
         # refine A Table
-        num = A_table.shape[0]
-        for i in range(A_table.shape[0]):
+        pagerank.refine_A_matrix(doc_id, webpage.outlinks)
+        # num = pagerank.A_matrix.shape[0]
+        # for i in range(pagerank.A_matrix.shape[0]):
             
-            # Markov chains
-            if(np.sum(A_table[i])):
-                A_table[i] /= np.sum(A_table[i])
-            else:
-                A_table[i] = 1/num;
-                continue
+        #     # Markov chains
+        #     if(np.sum(pagerank.A_matrix[i])):
+        #         pagerank.A_matrix[i] /= np.sum(pagerank.A_matrix[i])
+        #     else:
+        #         pagerank.A_matrix[i] = 1/num
+        #         continue
 
-            # Teleport
-            for j in range(A_table.shape[1]):
-                A_table[i][j] = 0.1*(1/num) + 0.9*A_table[i][j]
+        #     # Teleport
+        #     for j in range(pagerank.A_matrix.shape[1]):
+        #         pagerank.A_matrix[i][j] = 0.1 * \
+        #             (1/num) + 0.9*pagerank.A_matrix[i][j]
             
-        print(A_table)
+        print(pagerank.A_matrix)
 
 
 if __name__ == '__main__':
