@@ -37,7 +37,7 @@ class Crawl:
             webpage = Webpage()
 
             # fetch url and parse
-            webpage.url = self.frontier.pop()
+            webpage.url = self.frontier.pop(0)  # 0: first element default: last element
             html = urlopen(webpage.url)
             bsObj = BeautifulSoup(html, "html.parser")  # get a bs object
 
@@ -88,5 +88,5 @@ class Crawl:
 if __name__ == '__main__':
     url = "https://en.wikipedia.org/wiki/Computer_science"
     crawl = Crawl( url)
-    crawl.crawl('./webpage')
+    crawl.crawl('./webpage', num=10)
     print(crawl.fetchedurls)
