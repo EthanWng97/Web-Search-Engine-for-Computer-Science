@@ -57,7 +57,10 @@ class Indexer:
                 webpage = Webpage()
                 with open(in_dir + '/' + file,'rb') as f:
                     webpage = pickle.load(f)
-                    
+                    # if(doc_id == 0): 
+                    #     print(webpage.url)
+                    #     print(webpage.outlinks)
+                    #     print(len(webpage.outlinks))
                     # contrust A table
                     for j in range(len(webpage.outlinks)):
                         try:
@@ -65,8 +68,25 @@ class Indexer:
                         except ValueError:
                             continue
                         else:
+                            # print(fetchedurls[num])
                             A_table[doc_id][num] = 1
 
+        print(A_table)
+        # refine A Table
+        num = A_table.shape[0]
+        for i in range(A_table.shape[0]):
+            
+            # Markov chains
+            if(np.sum(A_table[i])):
+                A_table[i] /= np.sum(A_table[i])
+            else:
+                A_table[i] = 1/num;
+                continue
+
+            # Teleport
+            for j in range(A_table.shape[1]):
+                A_table[i][j] = 0.1*(1/num) + 0.9*A_table[i][j]
+            
         print(A_table)
 
 
