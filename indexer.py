@@ -43,8 +43,8 @@ class Indexer:
             "/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/fetchedurls", "rb")
         fetchedurls = pickle.load(fopen)
         n = len(fetchedurls)
-        print(n)
-        A_table = np.empty(shape=(n,n))
+        print(fetchedurls)
+        A_table = np.zeros(shape=(n,n),dtype=np.float)
         for i, file in enumerate(files):
             if not os.path.isdir(file):
                 if (file == ".DS_Store"):
@@ -57,8 +57,18 @@ class Indexer:
                 webpage = Webpage()
                 with open(in_dir + '/' + file,'rb') as f:
                     webpage = pickle.load(f)
-                
-                # contrust A table
+                    
+                    # contrust A table
+                    for j in range(len(webpage.outlinks)):
+                        try:
+                            num = fetchedurls.index(webpage.outlinks[j])
+                        except ValueError:
+                            continue
+                        else:
+                            A_table[doc_id][num] = 1
+
+        print(A_table)
+
 
 if __name__ == '__main__':
 
