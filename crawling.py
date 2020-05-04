@@ -21,6 +21,8 @@ class Crawl:
         self.hash = set()
         self.fetchedurls = []
         self.simhash = Simhash()
+        self.category_list = ['info', 'com', 'tech',
+                              'sci', 'dev', 'pro', 'alg', 'learn', 'eng', 'math', 'oper', 'data']
 
     """ Description
     Args:
@@ -37,10 +39,25 @@ class Crawl:
             webpage = Webpage()
 
             # fetch url and parse
-            webpage.url = self.frontier.pop(0)  # 0: first element default: last element
+            webpage.url = self.frontier.pop()  # 0: first element default: last element
             html = urlopen(webpage.url)
             bsObj = BeautifulSoup(html, "html.parser")  # get a bs object
 
+            # check the category
+            div = bsObj.find(name='div', id='mw-normal-catlinks')
+            try:
+                contents = div.find_all(name='a')
+            except AttributeError:
+                continue
+            else:   
+                tmp_category = ""
+                for content in contents:
+                    aText = content.get_text().lower()
+                    tmp_category += aText
+                # print(tmp_category)
+                if(not any(category in tmp_category for category in self.category_list)):
+                    continue
+            
             # fetch title
             webpage.title = str(bsObj.title).replace(
                 " - Wikipedia</title>", '').replace("<title>","")
@@ -88,5 +105,5 @@ class Crawl:
 if __name__ == '__main__':
     url = "https://en.wikipedia.org/wiki/Computer_science"
     crawl = Crawl( url)
-    crawl.crawl('./webpage', num=10)
+    crawl.crawl('./webpage', num=50)
     print(crawl.fetchedurls)
