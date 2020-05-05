@@ -23,8 +23,10 @@ class Indexer:
         self.postings_file = postings_file
         self.total_doc = {}
         self.dictionary = {}
-        self.skip_pointer_list = []
         self.postings = {}
+
+        self.average = 0
+        self.normalize = True
 
     """ Description
     Args:
@@ -67,17 +69,65 @@ class Indexer:
                     # contrust A table
                     pagerank.build_A_matrix(doc_id, webpage.outlinks)
 
-        # print(pagerank.A_matrix)
+                    # process content
+                    # tokenize
+                    tokens = [word for sent in nltk.sent_tokenize(
+                        webpage.content) for word in nltk.word_tokenize(sent)]
+
+                    for token in tokens:
+                        # stemmer.lower
+                        clean_token = porter_stemmer.stem(token.lower())
+
+                        if clean_token in self.dictionary:  # term exists
+                            if clean_token in doc_set:
+                                self.postings[clean_token][-1][1] += 1
+
+                                # insert position
+                                self.postings[clean_token][-1][2].append(
+                                    term_pos)
+
+                            else:
+                                doc_set.add(clean_token)
+
+                                # insert position
+                                self.postings[clean_token].append(
+                                    [doc_id, 1, [term_pos]])
+                        else:
+                            doc_set.add(clean_token)
+                            self.dictionary[clean_token] = 0
+
+                            # insert position
+                            self.postings[clean_token] = [
+                                [doc_id, 1, [term_pos]]]  # {"term": [[1,2],[5,6]]}
+                        term_pos += 1
+
+                # accumulate the length of doc
+                if(self.normalize):
+                    self.average += term_pos
+
+                # calculate weight of each term
+                length = 0
+                for token in doc_set:
+                    # convert raw tf into 1+log(tf)
+                    self.postings[token][-1][1] = 1 + \
+                        math.log(self.postings[token][-1][1], 10)
+
+                    length += np.square(self.postings[token][-1][1])
+
+                # sqart the length and assign it to doc
+                self.total_doc[doc_id] = np.sqrt(length)
+        
+        # calculate the average length of totoal doc
+        if(self.normalize):
+            self.average /= (i+1)
+
         # refine A Table
         pagerank.refine_A_matrix()
-        # print(pagerank.x)
-
-        # print(pagerank.A_matrix)
 
         # run pagerank algorithm
         pagerank.run(precision=0.001)
             
-        # print(pagerank.A_matrix)
+
 
 
 if __name__ == '__main__':
