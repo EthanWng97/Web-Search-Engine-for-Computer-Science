@@ -2,6 +2,7 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from simhash import Simhash
 import re
+import time
 import pickle
 
 class Webpage:
@@ -15,16 +16,36 @@ class Crawl:
     """ class crawl is a class dealing with crawling data from Website
         Args:
         url: root url for crawling
+        robots_file: robots.txt
     """
-    def __init__(self, url):
+
+    def __init__(self, url, robots_file):
         self.frontier = [url]
         self.hash = set()
+        self.rules = set()
         self.fetchedurls = []
+        self.robots = robots_file
         self.simhash = Simhash()
         self.category_list = ['info', 'com', 'tech',
                               'sci', 'dev', 'pro', 'alg', 'learn', 'eng', 'math', 'oper', 'data']
 
-    """ Description
+    """ Get the rules from robots.txt
+    """
+
+    def get_rules(self):
+        open(self.robots, 'r')
+        with open(self.robots, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if(re.match(r'(Disallow).*?(?=\n)', line)):
+                    # print(line)
+                    line = line.replace("Disallow: ", "").replace(
+                        "Disallow:", "").replace("\n",'')
+                    if(len(line) <= 2):
+                        continue
+                    self.rules.add(line)
+    
+    """ Crawl data
     Args:
         in_dir: working directory
     """
@@ -85,6 +106,11 @@ class Crawl:
             newurls = div.find_all(
                 'a', href=re.compile("^(/wiki/)((?!;)\S)*$"))
             for newurl in newurls:
+
+                # obey the robots.txt
+                if (newurl.attrs['href'].replace("\n", '') in self.rules):
+                    continue
+
                 myurl = "https://en.wikipedia.org" + newurl.attrs['href']
 
                 # dup URL elim
@@ -104,6 +130,9 @@ class Crawl:
 
 if __name__ == '__main__':
     url = "https://en.wikipedia.org/wiki/Computer_science"
-    crawl = Crawl( url)
-    crawl.crawl('./webpage', num=10)
-    print(crawl.fetchedurls)
+    crawl = Crawl(url, 'robots.txt')
+    crawl.get_rules()
+    start = time.time()
+    crawl.crawl('./webpage', num=50)
+    end = time.time()
+    print('execution time: ' + str(end-start) + 's')
