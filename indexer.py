@@ -131,8 +131,12 @@ class Indexer:
 
                     length += np.square(self.postings[token][-1][1])
 
-                # sqart the length and assign it to doc
+                # assign length to each doc
                 self.total_doc[doc_id] = np.sqrt(length)
+
+                # normalize the 1+log(tf)
+                for token in doc_set:
+                    self.postings[token][-1][1] /= self.total_doc[doc_id]
         
         # calculate the average length of totoal doc
         if(self.normalize):
@@ -144,17 +148,21 @@ class Indexer:
         # run pagerank algorithm
         pagerank.run(precision=0.001)
 
-    """ Description
+    """ process title and content in each doc
     Args:
-        arg: 
+        term_pos: term position in the doc
+        doc_set: set of words in the doc
+        corpus: content or title
+        doc_id: the id of the doc
+        title: whether the corpus is title or not
     Returns:
-        return:
+        term_pos: processed term_pos
+        doc_set: processed doc_set
     """
 
     def process_corpus(self, term_pos, doc_set, corpus, doc_id, title=False):
         if (title):
             tokens = self.rm_punct.tokenize(corpus)
-            print(tokens)
         else:
             tokens = [word for sent in nltk.sent_tokenize(
                 corpus) for word in nltk.word_tokenize(sent)]
@@ -173,7 +181,7 @@ class Indexer:
             clean_token = self.stem.stem(token.lower())
             if (title):
                 clean_token += ".title"
-                print(clean_token)
+                # print(clean_token)
             if clean_token in self.dictionary:  # term exists
                 if clean_token in doc_set:
                     self.postings[clean_token][-1][1] += 1
@@ -307,9 +315,9 @@ if __name__ == '__main__':
     # end = time.time()
     # print('execution time: ' + str(end-start) + 's')
     average, total_doc, dictionary = indexer.LoadDict()
-    print(dictionary)
-    # terms = ['embark']
-    # print(indexer.LoadTerms(terms)['embark'])
+    # print(dictionary)
+    terms = ['embark']
+    print(indexer.LoadTerms(terms)['embark'])
     # print('./webpage' + '/' + str(indexer.LoadTerms(terms)['embark'][0][0]))
     # with open('./webpage' + '/' + str(indexer.LoadTerms(terms)['embark'][0][0]), 'rb') as f:
     #     webpage = Webpage()
