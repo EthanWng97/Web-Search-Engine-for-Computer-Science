@@ -49,7 +49,6 @@ class PageRank:
         # num = self.A_matrix.shape[0]
         # x = np.full([1, num],1/num)
         a_new = np.dot(self.a, self.A_matrix)
-        print(a_new)
         error_sum = ((self.a - a_new)**2).sum()
         if (error_sum <= precision):
             return

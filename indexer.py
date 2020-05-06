@@ -33,6 +33,7 @@ class Indexer:
         self.stem = PorterStemmer()
         self.rm_punct = RegexpTokenizer(r'\w+')
         self.stop_words = set(stopwords.words('english'))
+        self.pagerank = None
 
     """ Description
     Args:
@@ -52,7 +53,7 @@ class Indexer:
             "/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/fetchedurls", "rb")
         fetchedurls = pickle.load(fopen)
         # init PageRank class
-        pagerank = PageRank(fetchedurls)
+        self.pagerank = PageRank(fetchedurls)
         # n = len(fetchedurls)
         # print(fetchedurls)
         # A_table = np.zeros(shape=(n,n),dtype=np.float)
@@ -69,7 +70,7 @@ class Indexer:
                 with open(in_dir + '/' + file,'rb') as f:
                     webpage = pickle.load(f)
                     # contrust A table
-                    pagerank.build_A_matrix(doc_id, webpage.outlinks)
+                    self.pagerank.build_A_matrix(doc_id, webpage.outlinks)
                     
                     # process title
                     # print(webpage.title)
@@ -144,11 +145,10 @@ class Indexer:
             self.average /= (i+1)
 
         # refine A Table
-        pagerank.refine_A_matrix()
+        self.pagerank.refine_A_matrix()
 
         # run pagerank algorithm
-        pagerank.run(precision=0.001)
-        print(pagerank.a)
+        self.pagerank.run(precision=0.001)
 
     """ process title and content in each doc
     Args:
@@ -248,6 +248,10 @@ class Indexer:
 
             # save the position
             np.save(post_file, position, allow_pickle=True)
+        
+        # print(self.pagerank.a)
+        # save array a generated from pagerank algorithm to the file
+        pickle.dump(self.pagerank.a, dict_file)
 
         # save average length of doc to the file
         pickle.dump(self.average, dict_file)
@@ -268,12 +272,13 @@ class Indexer:
     def LoadDict(self):
         print('loading dictionary...')
         with open(self.dictionary_file, 'rb') as f:
+            a = pickle.load(f)
             self.average = pickle.load(f)
             self.total_doc = pickle.load(f)
             self.dictionary = pickle.load(f)
 
         print('load dictionary successfully!')
-        return self.average, self.total_doc, self.dictionary
+        return a, self.average, self.total_doc, self.dictionary
 
     """ load multiple postings lists from file
     Args:
@@ -317,18 +322,18 @@ class Indexer:
 if __name__ == '__main__':
 
     indexer = Indexer('dictionary.txt', 'postings.txt')
-    # indexer.build_index(
-    #     '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage')
-    # indexer.SavetoFile()
+    indexer.build_index(
+        '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage')
+    indexer.SavetoFile()
     # end = time.time()
     # print('execution time: ' + str(end-start) + 's')
-    average, total_doc, dictionary = indexer.LoadDict()
-    # # print(dictionary)
-    terms = ['the']
-    print(indexer.LoadTerms(terms)['the'])
+    # average, total_doc, dictionary = indexer.LoadDict()
+    # # # print(dictionary)
+    # terms = ['the']
+    # print(indexer.LoadTerms(terms)['the'])
     # # print('./webpage' + '/' + str(indexer.LoadTerms(terms)['embark'][0][0]))
-    # with open('./webpage' + '/' + '6', 'rb') as f:
-    #     webpage = Webpage()
-    #     webpage = pickle.load(f)
-    #     print(webpage.content)
-    #     print(webpage.url)
+    with open('./webpage' + '/' + '9', 'rb') as f:
+        webpage = Webpage()
+        webpage = pickle.load(f)
+        print(webpage.content)
+        print(webpage.url)
