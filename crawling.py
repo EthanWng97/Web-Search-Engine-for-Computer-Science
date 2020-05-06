@@ -71,7 +71,7 @@ class Crawl:
                 tmp_content += pText
             webpage.content = tmp_content
             
-            if (not webpage.title or not webpage.content):
+            if (not webpage.title or not webpage.content or len(webpage.content)<100):
                 continue
             # content seen?
             tmp_hash = self.simhash.cal_simhash(tmp_content.split())
