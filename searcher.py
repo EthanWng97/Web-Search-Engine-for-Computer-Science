@@ -38,7 +38,7 @@ class Searcher:
         self.refiner = Refiner(indexer=self.indexer,
                                expand=expand, feedback=feedback)
 
-        self.indexer.LoadDict()
+        self.a,_,_,_ = self.indexer.LoadDict()
 
     """ Search and return docIds according to the boolean expression.
     Args:
@@ -113,6 +113,9 @@ class Searcher:
             # step 4: update total scores
             for doc in scores:
                 total_scores[doc] += scores[doc]
+        
+        # use pagerank to change the weight
+        self._pagerank(total_scores)
 
         # step 4: get the topK docs from the heap
         heap = [(total_scores[doc], -doc) for doc in total_scores]
@@ -126,6 +129,33 @@ class Searcher:
 
         # step 5: return the topK docs
         return result, score
+
+    """ Use array a generated from pagerank algorithm to change the weight
+    Args:
+        total_scores: dict of doc and score
+    Returns:
+        total_scores: processed dict of doc and score
+    """
+    def _pagerank(self, total_scores):
+        # normalize the total_scores
+        min_score = min(total_scores.values())
+        max_score = max(total_scores.values())
+        to_be_divided_by = max_score - min_score
+        for key in total_scores.keys():
+            total_scores[key] = (total_scores[key] -
+                                 min_score)/to_be_divided_by
+
+        # normalize the a value
+        min_score = np.min(self.a)
+        max_score = np.max(self.a)
+        to_be_divided_by = max_score - min_score
+        self.a = (self.a - min_score)/to_be_divided_by
+
+        # use pagerank to change the weight
+        for key in total_scores.keys():
+            total_scores[key] = (total_scores[key] + self.a[0][key])/2
+
+        return total_scores
 
     """ Get the intersection of docs
     Args:
@@ -257,16 +287,16 @@ class Searcher:
 
 if __name__ == '__main__':
     # Create a Searcher
-    searcher = Searcher('test-dictionary.txt', 'test-postings.txt', score=True)
+    searcher = Searcher('dictionary.txt', 'postings.txt', score=True)
 
     test_cases = [
-        {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
-         "relevant_docs": [0, 5]},
+        {"query": '"MAchine Readable Cataloging"',
+         "relevant_docs": []},
         {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
          "relevant_docs": [0]},
         {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
          "relevant_docs": [5]},
-        {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
+        {"query": 'the',
          "relevant_docs": []},
         {"query": '"Computer Science"',
          "relevant_docs": []}
