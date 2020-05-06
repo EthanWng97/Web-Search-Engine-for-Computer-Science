@@ -32,6 +32,7 @@ class Indexer:
         self.normalize = True
         self.stem = PorterStemmer()
         self.rm_punct = RegexpTokenizer(r'\w+')
+        self.stop_words = set(stopwords.words('english'))
 
     """ Description
     Args:
@@ -147,6 +148,7 @@ class Indexer:
 
         # run pagerank algorithm
         pagerank.run(precision=0.001)
+        print(pagerank.a)
 
     """ process title and content in each doc
     Args:
@@ -169,13 +171,12 @@ class Indexer:
         
         for token in tokens:
             # remove stopwords
-            if token.lower() in set(stopwords.words("english")):
-                continue
+            # if token.lower() in self.stop_words:
+            #     continue
 
             # remove non alphanumeric
             if not token.isalnum():
                 continue
-            # stops = set(stopwords.words("english"))
 
             # stemmer.lower
             clean_token = self.stem.stem(token.lower())
@@ -295,13 +296,20 @@ class Indexer:
 
                 # load position
                 position = np.load(self.file_handle, allow_pickle=True)
-                ret[term] = (doc, log_tf, position)
+
+                # calculate idf
+                df = len(doc)
+                idf = math.log(len(self.total_doc) / df, 10)
+
+                # return tuple
+                ret[term] = (idf, doc, log_tf, position)
 
             else:
+                idf = 0
                 doc = np.empty(shape=(0, ), dtype=np.int32)
                 log_tf = np.empty(shape=(0, ), dtype=np.float32)
                 position = np.empty(shape=(0, ), dtype=object)
-                ret[term] = (doc, log_tf, position)
+                ret[term] = (idf, doc, log_tf, position)
 
         return ret
 
@@ -309,17 +317,18 @@ class Indexer:
 if __name__ == '__main__':
 
     indexer = Indexer('dictionary.txt', 'postings.txt')
-    indexer.build_index(
-        '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage')
-    indexer.SavetoFile()
+    # indexer.build_index(
+    #     '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage')
+    # indexer.SavetoFile()
     # end = time.time()
     # print('execution time: ' + str(end-start) + 's')
     average, total_doc, dictionary = indexer.LoadDict()
-    # print(dictionary)
-    terms = ['embark']
-    print(indexer.LoadTerms(terms)['embark'])
-    # print('./webpage' + '/' + str(indexer.LoadTerms(terms)['embark'][0][0]))
-    # with open('./webpage' + '/' + str(indexer.LoadTerms(terms)['embark'][0][0]), 'rb') as f:
+    # # print(dictionary)
+    terms = ['the']
+    print(indexer.LoadTerms(terms)['the'])
+    # # print('./webpage' + '/' + str(indexer.LoadTerms(terms)['embark'][0][0]))
+    # with open('./webpage' + '/' + '6', 'rb') as f:
     #     webpage = Webpage()
     #     webpage = pickle.load(f)
     #     print(webpage.content)
+    #     print(webpage.url)
