@@ -66,10 +66,11 @@ class Refiner:
         # step 3: tokenize all the single queries
         total_terms = self._tokenize(query_infos)
 
-        # step 4: get the postings lists of total terms
+        # use zone and field
         for term in tmp_terms:
             total_terms.add(str(term+'.title'))
 
+        # step 4: get the postings lists of total terms
         postings_lists = self.indexer.LoadTerms(total_terms)
 
         # step 5: construct query vector
@@ -234,8 +235,8 @@ class Refiner:
             tmp = []
             for token in tokens:
                 token = token.lower()
-                if token not in self.indexer.stop_words:
-                    tmp.append(self.stemmer.stem(token))
+                # if token not in self.indexer.stop_words:
+                tmp.append(self.stemmer.stem(token))
 
             tokens = tmp
 
@@ -295,7 +296,7 @@ class Refiner:
 
 
 if __name__ == '__main__':
-    refiner = Refiner()
+    refiner = Refiner(indexer=Indexer('dictionary.txt', 'postings.txt'))
 
     query = '"Computer Science" AND Refiner can tokenize query strings into terms and tokens'
     terms = ['refin', 'can', 'token', 'queri', 'string', 'into',
@@ -314,7 +315,7 @@ if __name__ == '__main__':
         'comput': (4, np.array([0, 3, 6, 9]), np.array([1, 3, 6, 9]), [np.array([7, ])])
     }
 
-    test = 'expand' if len(sys.argv) == 1 else sys.argv[1]
+    test = '_tokenize' if len(sys.argv) == 1 else sys.argv[1]
 
     if test == '_split_query':
         query_infos = refiner._split_query(query)
