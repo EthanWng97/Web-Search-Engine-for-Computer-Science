@@ -27,7 +27,7 @@ class Crawl:
         self.robots = robots_file
         self.simhash = Simhash()
         self.category_list = ['info', 'com', 'tech',
-                              'sci', 'dev', 'pro', 'alg', 'learn', 'eng', 'math', 'oper', 'data']
+                              'sci', 'dev', 'alg', 'learn', 'eng', 'math', 'oper', 'data']
 
     """ Get the rules from robots.txt
     """
@@ -66,12 +66,12 @@ class Crawl:
 
             # check the category
             div = bsObj.find(name='div', id='mw-normal-catlinks')
+            tmp_category = ""
             try:
                 contents = div.find_all(name='a')
             except AttributeError:
                 continue
             else:   
-                tmp_category = ""
                 for content in contents:
                     aText = content.get_text().lower()
                     tmp_category += aText
@@ -129,7 +129,7 @@ class Crawl:
 
 
 if __name__ == '__main__':
-    url = "https://en.wikipedia.org/wiki/Computer_science"
+    url = "https://en.wikipedia.org/wiki/Outline_of_computer_science"
     crawl = Crawl(url, 'robots.txt')
     crawl.get_rules()
     start = time.time()
