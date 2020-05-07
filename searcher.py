@@ -61,8 +61,11 @@ class Searcher:
         # step 3: rank documents get the result
         result, score = self.rank(query_infos, postings_lists)
 
+        # step 4: fetch url from result
+        urls = self.indexer.LoadUrls(result)
+        
         # step 4: return the result
-        return result, score
+        return result, urls, score
 
     """ Rank the documents and return the K most relevant docIds.
         The result should be in the order of relevant.
@@ -149,6 +152,11 @@ class Searcher:
         min_score = np.min(self.a)
         max_score = np.max(self.a)
         to_be_divided_by = max_score - min_score
+
+        # all same value in array a
+        if (to_be_divided_by == 0):
+            return total_scores
+        
         self.a = (self.a - min_score)/to_be_divided_by
 
         # use pagerank to change the weight
@@ -290,25 +298,26 @@ if __name__ == '__main__':
     searcher = Searcher('dictionary.txt', 'postings.txt', score=True)
 
     test_cases = [
-        {"query": '"MAchine Readable Cataloging"',
+        # {"query": '"MAchine Readable Cataloging"',
+        #  "relevant_docs": []},
+        # {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
+        #  "relevant_docs": [0]},
+        # {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
+        #  "relevant_docs": [5]},
+        {"query": '"computer science"',
          "relevant_docs": []},
-        {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
-         "relevant_docs": [0]},
-        {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
-         "relevant_docs": [5]},
-        {"query": 'the',
-         "relevant_docs": []},
-        {"query": '"Computer Science"',
-         "relevant_docs": []}
+        # {"query": '"Computer Science"',
+        #  "relevant_docs": []}
     ]
 
     for i, test_case in enumerate(test_cases):
         query = test_case['query']
         relevant_docs = test_case['relevant_docs']
-        result, score = searcher.search(query, relevant_docs)
+        result, urls, score = searcher.search(query, relevant_docs)
         print("test case [%d]" % i)
         print("query:", query)
         print("relevant_docs", relevant_docs)
         print("result", result)
+        print("urls", urls)
         print("score", score)
         print("")

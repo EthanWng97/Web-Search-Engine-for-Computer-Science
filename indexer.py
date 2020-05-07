@@ -246,6 +246,18 @@ class Indexer:
         print('load dictionary successfully!')
         return a, self.average, self.total_doc, self.dictionary
 
+    """ load urls given list of doc_id
+    Returns:
+        tmp_url: list of urls corresponding to the doc_id
+    """
+
+    def LoadUrls(self, result):
+        tmp_url = []
+        for i in range(len(result)):
+            tmp_url.append(self.total_doc[result[i]][1])
+        
+        return tmp_url
+
     """ load multiple postings lists from file
     Args:
         terms: the list of terms need to be loaded
@@ -288,18 +300,18 @@ class Indexer:
 if __name__ == '__main__':
 
     indexer = Indexer('dictionary.txt', 'postings.txt')
-    indexer.build_index(
-        '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage', precision=0.000001)
-    indexer.SavetoFile()
+    # indexer.build_index(
+    #     '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage', precision=0.000001)
+    # indexer.SavetoFile()
     # end = time.time()
     # print('execution time: ' + str(end-start) + 's')
-    # average, total_doc, dictionary = indexer.LoadDict()
-    # # # print(dictionary)
+    a, average, total_doc, dictionary = indexer.LoadDict()
+    print(total_doc)
     # terms = ['the']
     # print(indexer.LoadTerms(terms)['the'])
     # # print('./webpage' + '/' + str(indexer.LoadTerms(terms)['embark'][0][0]))
-    with open('./webpage' + '/' + '9', 'rb') as f:
-        webpage = Webpage()
-        webpage = pickle.load(f)
-        print(webpage.content)
-        print(webpage.url)
+    # with open('./webpage' + '/' + '37', 'rb') as f:
+    #     webpage = Webpage()
+    #     webpage = pickle.load(f)
+    #     print(webpage.content)
+    #     print(webpage.url)
