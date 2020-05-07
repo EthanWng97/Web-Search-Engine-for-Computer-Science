@@ -42,7 +42,7 @@ class Indexer:
         return:
     """
 
-    def build_index(self, in_dir):
+    def build_index(self, in_dir, precision):
         print('indexing...')
         if (not os.path.exists(in_dir)):
             print("wrong file path!")
@@ -64,61 +64,27 @@ class Indexer:
                 doc_id = int(file.replace(".txt", ""))
                 doc_set = set()
                 term_pos = 0
-                self.total_doc[doc_id] = 0
+                self.total_doc[doc_id] = [0, 0]  # first element: length; second element: url
+                # self.total_doc[doc_id] = 0
 
                 webpage = Webpage()
                 with open(in_dir + '/' + file,'rb') as f:
                     webpage = pickle.load(f)
+                    
+                    # process url
+                    self.total_doc[doc_id][1] = webpage.url
+
+                    # process outlinks
                     # contrust A table
                     self.pagerank.build_A_matrix(doc_id, webpage.outlinks)
-                    
+
                     # process title
-                    # print(webpage.title)
-                    # print(webpage.url)
-                    term_pos, doc_set = self.process_corpus(
+                    term_pos, doc_set = self._process_corpus(
                         term_pos, doc_set, webpage.title, doc_id, title=True)
                     
                     # process content
-                    term_pos, doc_set = self.process_corpus(
+                    term_pos, doc_set = self._process_corpus(
                         term_pos, doc_set, webpage.content, doc_id, title=False)
-
-                    # tokenize
-                    # tokens = [word for sent in nltk.sent_tokenize(
-                    #     webpage.content) for word in nltk.word_tokenize(sent)]
-                    # for token in tokens:
-                    #     # remove stopwords
-                    #     if token.lower() in set(stopwords.words("english")):
-                    #         continue
-
-                    #     # remove non alphanumeric
-                    #     if not token.isalnum():
-                    #         continue
-                    #     # stops = set(stopwords.words("english"))
-
-                    #     # stemmer.lower
-                    #     clean_token = porter_stemmer.stem(token.lower())
-                    #     if clean_token in self.dictionary:  # term exists
-                    #         if clean_token in doc_set:
-                    #             self.postings[clean_token][-1][1] += 1
-
-                    #             # insert position
-                    #             self.postings[clean_token][-1][2].append(
-                    #                 term_pos)
-
-                    #         else:
-                    #             doc_set.add(clean_token)
-
-                    #             # insert position
-                    #             self.postings[clean_token].append(
-                    #                 [doc_id, 1, [term_pos]])
-                    #     else:
-                    #         doc_set.add(clean_token)
-                    #         self.dictionary[clean_token] = 0
-
-                    #         # insert position
-                    #         self.postings[clean_token] = [
-                    #             [doc_id, 1, [term_pos]]]  # {"term": [[1,2],[5,6]]}
-                    #     term_pos += 1
 
                 # accumulate the length of doc
                 if(self.normalize):
@@ -134,11 +100,11 @@ class Indexer:
                     length += np.square(self.postings[token][-1][1])
 
                 # assign length to each doc
-                self.total_doc[doc_id] = np.sqrt(length)
+                self.total_doc[doc_id][0] = np.sqrt(length)
 
                 # normalize the 1+log(tf)
                 for token in doc_set:
-                    self.postings[token][-1][1] /= self.total_doc[doc_id]
+                    self.postings[token][-1][1] /= self.total_doc[doc_id][0]
         
         # calculate the average length of totoal doc
         if(self.normalize):
@@ -146,9 +112,8 @@ class Indexer:
 
         # refine A Table
         self.pagerank.refine_A_matrix()
-
         # run pagerank algorithm
-        self.pagerank.run(precision=0.001)
+        self.pagerank.run(precision=precision)
 
     """ process title and content in each doc
     Args:
@@ -162,7 +127,8 @@ class Indexer:
         doc_set: processed doc_set
     """
 
-    def process_corpus(self, term_pos, doc_set, corpus, doc_id, title=False):
+    def _process_corpus(self, term_pos, doc_set, corpus, doc_id, title=False):
+        # tokenize
         if (title):
             tokens = self.rm_punct.tokenize(corpus)
         else:
@@ -323,7 +289,7 @@ if __name__ == '__main__':
 
     indexer = Indexer('dictionary.txt', 'postings.txt')
     indexer.build_index(
-        '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage')
+        '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage', precision=0.000001)
     indexer.SavetoFile()
     # end = time.time()
     # print('execution time: ' + str(end-start) + 's')
