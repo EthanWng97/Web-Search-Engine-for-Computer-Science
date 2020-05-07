@@ -38,6 +38,7 @@ class Searcher:
         self.indexer = Indexer(dictionary_file, postings_file)
         self.refiner = Refiner(indexer=self.indexer,
                                expand=expand, feedback=feedback)
+        self.feedback = feedback
 
         self.a,_,_,_ = self.indexer.LoadDict()
 
@@ -59,7 +60,16 @@ class Searcher:
         # step 2-2: judging every doc whether it contains the phrase
         self._judge(query_infos, postings_lists)
 
-        # step 3: rank documents get the result
+        # step 3: rank documents based on VSM and relevance feedback based on top doc to get final result
+        # step 3-1: rank documents get the result
+        result, score = self.rank(query_infos, postings_lists)
+        print(result)
+        # step 3-2: relevance feedback based on top doc
+        print(query_infos[0].query_vector)
+        if(self.feedback):
+            self.refiner._feedback(query_infos, result[:5], postings_lists)
+        print(query_infos[0].query_vector)
+        # step 3-3: rank again using new query vector
         result, score = self.rank(query_infos, postings_lists)
 
         # step 4: fetch url from result
@@ -309,7 +319,7 @@ if __name__ == '__main__':
         #  "relevant_docs": [0]},
         # {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
         #  "relevant_docs": [5]},
-        {"query": '"adfpweoaifnawef awefiowaenf"',
+        {"query": 'computer science',
          "relevant_docs": []},
         # {"query": '"Computer Science"',
         #  "relevant_docs": []}
