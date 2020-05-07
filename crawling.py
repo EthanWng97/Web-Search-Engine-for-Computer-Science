@@ -127,6 +127,8 @@ class Crawl:
                 pickle.dump(webpage, fwrite)
 
             i += 1
+            if (i%100 == 0):
+                print(i)
         fopen = open("fetchedurls","wb")
         pickle.dump(self.fetchedurls, fopen)
 
