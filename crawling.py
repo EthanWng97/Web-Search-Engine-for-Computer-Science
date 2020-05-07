@@ -21,11 +21,10 @@ class Crawl:
 
     def __init__(self, url, robots_file):
         self.frontier = [url]
-        self.hash = set()
+        self.hash = []
         self.rules = set()
         self.fetchedurls = []
         self.robots = robots_file
-        self.simhash = Simhash()
         self.category_list = ['info', 'com', 'tech',
                               'sci', 'dev', 'alg', 'learn', 'eng', 'math', 'oper', 'data']
 
@@ -81,7 +80,7 @@ class Crawl:
             
             # fetch title
             webpage.title = str(bsObj.title).replace(
-                " - Wikipedia</title>", '').replace("<title>","")
+                " - Wikipedia</title>", '').replace("<title>", "")
 
             # fetch content
             tmp_content = ""
@@ -94,11 +93,15 @@ class Crawl:
             
             if (not webpage.title or not webpage.content or len(webpage.content)<100):
                 continue
-            # content seen?
-            tmp_hash = self.simhash.cal_simhash(tmp_content.split())
-            """ content seen before
 
-            """
+            # check the content
+            tmp_simhash = Simhash(webpage.content)
+            for i in range(len(self.hash)):
+                if (tmp_simhash.distance(self.hash[i])<=5):
+                    continue
+
+            # satisfied url
+            self.hash.append(tmp_simhash)
             self.fetchedurls.append(webpage.url)
 
             # fetch outlinks
