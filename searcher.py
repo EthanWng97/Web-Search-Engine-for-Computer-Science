@@ -25,8 +25,9 @@ class Searcher:
         pivoted: boolean indicator for using pivoted normalized document length
     """
 
-    def __init__(self, dictionary_file, postings_file, rate=0.01,
-                 expand=True, feedback=True, pivoted=False, score=False):
+    def __init__(self, dictionary_file, postings_file, expand=True, 
+        feedback=True, rate=0.01, pivoted=False, score=False):
+
         self.dictionary_file = dictionary_file
         self.postings_file = postings_file
         self.rate = rate
@@ -63,7 +64,7 @@ class Searcher:
 
         # step 4: fetch url from result
         urls = self.indexer.LoadUrls(result)
-        
+
         # step 4: return the result
         return result, urls, score
 
@@ -141,29 +142,33 @@ class Searcher:
     """
     def _pagerank(self, total_scores):
         # normalize the total_scores
-        min_score = min(total_scores.values())
-        max_score = max(total_scores.values())
-        to_be_divided_by = max_score - min_score
-        for key in total_scores.keys():
-            total_scores[key] = (total_scores[key] -
-                                 min_score)/to_be_divided_by
-
-        # normalize the a value
-        min_score = np.min(self.a)
-        max_score = np.max(self.a)
-        to_be_divided_by = max_score - min_score
-
-        # all same value in array a
-        if (to_be_divided_by == 0):
+        try:
+            min_score = min(total_scores.values())
+            max_score = max(total_scores.values())
+        except ValueError:
             return total_scores
-        
-        self.a = (self.a - min_score)/to_be_divided_by
+        else:
+            to_be_divided_by = max_score - min_score
+            for key in total_scores.keys():
+                total_scores[key] = (total_scores[key] -
+                                    min_score)/to_be_divided_by
 
-        # use pagerank to change the weight
-        for key in total_scores.keys():
-            total_scores[key] = (total_scores[key] + self.a[0][key])/2
+            # normalize the a value
+            min_score = np.min(self.a)
+            max_score = np.max(self.a)
+            to_be_divided_by = max_score - min_score
 
-        return total_scores
+            # all same value in array a
+            if (to_be_divided_by == 0):
+                return total_scores
+            
+            self.a = (self.a - min_score)/to_be_divided_by
+
+            # use pagerank to change the weight
+            for key in total_scores.keys():
+                total_scores[key] = (total_scores[key] + self.a[0][key])/2
+
+            return total_scores
 
     """ Get the intersection of docs
     Args:
@@ -304,7 +309,7 @@ if __name__ == '__main__':
         #  "relevant_docs": [0]},
         # {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
         #  "relevant_docs": [5]},
-        {"query": '"computer science"',
+        {"query": '"adfpweoaifnawef awefiowaenf"',
          "relevant_docs": []},
         # {"query": '"Computer Science"',
         #  "relevant_docs": []}
