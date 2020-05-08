@@ -4,8 +4,7 @@ import numpy as np
 class PageRank:
     """ class PageRank is a class dealing with pagerank function
         Args:
-        dictionary_file: the name of the dictionary.
-        postings_file: the name of the postings
+        fetchedurls: fetched url from index part
     """
     def __init__(self, fetchedurls):
         self.fetchedurls = fetchedurls

@@ -35,11 +35,10 @@ class Indexer:
         self.stop_words = set(stopwords.words('english'))
         self.pagerank = None
 
-    """ Description
+    """ build index from documents stored in the input directory
     Args:
-        arg: 
-    Returns:
-        return:
+        in_dir: working path
+        precision: value used for generating array a in pagerank
     """
 
     def build_index(self, in_dir, precision):
@@ -231,6 +230,8 @@ class Indexer:
 
     """ load dictionary from file
     Returns:
+        a: array a generated from pagerank
+        average: average of doc length
         total_doc: total doc_id
         dictionary: all word list
     """
@@ -247,6 +248,8 @@ class Indexer:
         return a, self.average, self.total_doc, self.dictionary
 
     """ load urls given list of doc_id
+    Args:
+        result: original list of doc_id from rank function
     Returns:
         tmp_url: list of urls corresponding to the doc_id
     """

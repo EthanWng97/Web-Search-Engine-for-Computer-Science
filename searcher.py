@@ -23,6 +23,7 @@ class Searcher:
         expand: boolean indicator for using Query Expansion
         feedback: boolean indicator for using Relevance Feedback
         pivoted: boolean indicator for using pivoted normalized document length
+        score: output the score of each result
     """
 
     def __init__(self, dictionary_file, postings_file, expand=False, 
@@ -45,8 +46,11 @@ class Searcher:
     """ Search and return docIds according to the boolean expression.
     Args:
         query: the query string
+        relevant_docs: relevanct doc used for relevance feedback
     Returns:
         result: the list of K most relevant docIds in response to the query
+        urls: the url corresponding to each result
+        score: the score corresponding to each result
     """
 
     def search(self, query, relevant_docs):
@@ -63,9 +67,11 @@ class Searcher:
         # step 3: rank documents based on VSM and relevance feedback based on top doc to get final result
         # step 3-1: rank documents get the result
         result, score = self.rank(query_infos, postings_lists)
+
         # step 3-2: relevance feedback based on top doc
         if(self.feedback):
             self.refiner._feedback(query_infos, result[:5], postings_lists)
+            
         # step 3-3: rank again using new query vector
         result, score = self.rank(query_infos, postings_lists)
 
