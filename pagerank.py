@@ -30,6 +30,11 @@ class PageRank:
     """ refine the A matrix by using probability and teleport
     """
     def refine_A_matrix(self):
+        # count = 0
+        # for i in range(self.A_matrix.shape[0]):
+        #     if(np.sum(self.A_matrix[i]) > 1):
+        #         count += 1
+        # print(count)
         num = self.A_matrix.shape[0]
         for i in range(self.A_matrix.shape[0]):
 
