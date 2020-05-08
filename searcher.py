@@ -25,7 +25,7 @@ class Searcher:
         pivoted: boolean indicator for using pivoted normalized document length
     """
 
-    def __init__(self, dictionary_file, postings_file, expand=True, 
+    def __init__(self, dictionary_file, postings_file, expand=False, 
         feedback=True, rate=0.01, pivoted=False, score=False):
 
         self.dictionary_file = dictionary_file
@@ -63,12 +63,9 @@ class Searcher:
         # step 3: rank documents based on VSM and relevance feedback based on top doc to get final result
         # step 3-1: rank documents get the result
         result, score = self.rank(query_infos, postings_lists)
-        print(result)
         # step 3-2: relevance feedback based on top doc
-        print(query_infos[0].query_vector)
         if(self.feedback):
             self.refiner._feedback(query_infos, result[:5], postings_lists)
-        print(query_infos[0].query_vector)
         # step 3-3: rank again using new query vector
         result, score = self.rank(query_infos, postings_lists)
 
@@ -319,7 +316,7 @@ if __name__ == '__main__':
         #  "relevant_docs": [0]},
         # {"query": '"Computer Science" AND Refiner can tokenize query strings into terms and tokens',
         #  "relevant_docs": [5]},
-        {"query": 'computer science',
+        {"query": 'information',
          "relevant_docs": []},
         # {"query": '"Computer Science"',
         #  "relevant_docs": []}

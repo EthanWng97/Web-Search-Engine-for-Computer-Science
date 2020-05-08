@@ -300,13 +300,14 @@ class Indexer:
 if __name__ == '__main__':
 
     indexer = Indexer('dictionary.txt', 'postings.txt')
-    # indexer.build_index(
-    #     '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage', precision=0.000001)
-    # indexer.SavetoFile()
-    # end = time.time()
-    # print('execution time: ' + str(end-start) + 's')
-    a, average, total_doc, dictionary = indexer.LoadDict()
-    print(total_doc)
+    start = time.time()
+    indexer.build_index(
+        '/Users/wangyifan/Desktop/Web-Search-Engine-for-Computer-Science/webpage', precision=0.00000001)
+    indexer.SavetoFile()
+    end = time.time()
+    print('execution time: ' + str(end-start) + 's')
+    # a, average, total_doc, dictionary = indexer.LoadDict()
+    # print(total_doc)
     # terms = ['the']
     # print(indexer.LoadTerms(terms)['the'])
     # # print('./webpage' + '/' + str(indexer.LoadTerms(terms)['embark'][0][0]))
