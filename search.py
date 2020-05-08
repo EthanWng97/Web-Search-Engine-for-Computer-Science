@@ -42,7 +42,8 @@ def run_search(dict_file, postings_file, queries_file, results_file, expand, fee
     with open(queries_file, 'r') as fin, \
             open(results_file, 'w') as fout:
         for line in fin:
-            result, urls, score = searcher.search(line,[])
+            result, urls, score = searcher.search(line.replace('\n', ''), [])
+            print(result)
             result_urls = []
             for i in range(len(result)):
                 result_urls.append(result[i])
