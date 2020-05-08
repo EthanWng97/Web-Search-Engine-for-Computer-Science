@@ -1,4 +1,5 @@
 from urllib.request import urlopen
+from urllib.error import HTTPError
 from bs4 import BeautifulSoup
 from simhash import Simhash
 import re
@@ -54,14 +55,24 @@ class Crawl:
         # content: string
         # outlinks: list
         i = 0
-        while(len(self.fetchedurls)<num):
+        while(len(self.fetchedurls)<=num):
             # init new Webpage class
             webpage = Webpage()
 
+            # pop url
+            if (len(self.frontier)>0):
+                webpage.url = self.frontier.pop()  # 0: first element default: last element
+            else:
+                print("empty frontier")
+                exit
+            
             # fetch url and parse
-            webpage.url = self.frontier.pop()  # 0: first element default: last element
-            html = urlopen(webpage.url)
-            bsObj = BeautifulSoup(html, "html.parser")  # get a bs object
+            try:
+                html = urlopen(webpage.url)
+            except HTTPError:
+                continue
+            else:
+                bsObj = BeautifulSoup(html, "html.parser")  # get a bs object
 
             # check the category
             div = bsObj.find(name='div', id='mw-normal-catlinks')
@@ -138,6 +149,6 @@ if __name__ == '__main__':
     crawl = Crawl(url, 'robots.txt')
     crawl.get_rules()
     start = time.time()
-    crawl.crawl('./webpage', num=50)
+    crawl.crawl('./webpage', num=2000)
     end = time.time()
     print('execution time: ' + str(end-start) + 's')
