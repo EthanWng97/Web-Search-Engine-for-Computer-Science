@@ -1,1 +1,3 @@
 .DS_Store
+/webpage
+__pycache__
