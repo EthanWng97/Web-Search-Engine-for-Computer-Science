@@ -109,6 +109,7 @@ As for the search part, I use the following steps to process a request.
 * simhash: This folder is external library for implementing simhash algorithm.
 * webpages: This folder contains all crawl webpages.
 * README.txt: This file contains an overview of this assignment and the algorithm's I used to solve it.
+* DOC.pdf: This file contains some technologies I used for this project, like SimHash.
 == Statement of individual work ==
 
 Please put a "x" (without the double quotes) into the bracket of the appropriate statement.
