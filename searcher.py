@@ -156,26 +156,27 @@ class Searcher:
     def _pagerank(self, total_scores):
         # normalize the total_scores
         try:
-            min_score = min(total_scores.values())
-            max_score = max(total_scores.values())
+            sum_score = sum(total_scores.values())
+            # min_score = min(total_scores.values())
+            # max_score = max(total_scores.values())
         except ValueError:
             return total_scores
         else:
-            to_be_divided_by = max_score - min_score
+            # to_be_divided_by = max_score - min_score
+            to_be_divided_by = sum_score
             for key in total_scores.keys():
-                total_scores[key] = (total_scores[key] -
-                                    min_score)/to_be_divided_by
+                total_scores[key] = (total_scores[key])/to_be_divided_by
 
             # normalize the a value
-            min_score = np.min(self.a)
-            max_score = np.max(self.a)
-            to_be_divided_by = max_score - min_score
+            # min_score = np.min(self.a)
+            # max_score = np.max(self.a)
+            # to_be_divided_by = max_score - min_score
 
-            # all same value in array a
-            if (to_be_divided_by == 0):
-                return total_scores
+            # # all same value in array a
+            # if (to_be_divided_by == 0):
+            #     return total_scores
             
-            self.a = (self.a - min_score)/to_be_divided_by
+            # self.a = (self.a - min_score)/to_be_divided_by
 
             # use pagerank to change the weight
             for key in total_scores.keys():
